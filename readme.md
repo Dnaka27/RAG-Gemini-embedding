@@ -45,10 +45,8 @@ GEMINI_API_KEY=sua_chave
 ```
 
 ## Uso
-Coloque `reference.md` na raiz e execute o notebook:
-```
-jupyter notebook
-```
+Coloque `reference.md` na raiz e execute o notebook
+
 Ele irá:
 1. Ler o arquivo
 2. Realizar chunking
