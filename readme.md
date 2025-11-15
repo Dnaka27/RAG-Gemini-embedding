@@ -37,15 +37,25 @@ Este projeto implementa **RAG (Retrieval-Augmented Generation)** com **Google Ge
 
 ### 1. Clone o repositório
 ```bash
-git clone https://github.com/seu-usuario/meu-projeto.git
-cd meu-projeto
+git clone https://github.com/Dnaka27/RAG-Gemini-embedding.git
+cd RAG-Gemini-embedding
 ```
 
 ### 2. Crie um ambiente virtual
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Linux/Mac
-.venv\Scripts\activate      # Windows
+```
+
+Ative o ambiente:
+
+**Linux / MacOS**
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+```bash
+.venv\Scripts\activate
 ```
 
 ### 3. Instale as dependências
@@ -55,6 +65,7 @@ pip install -r requirements.txt
 
 ### 4. Configure sua chave da API Gemini
 Crie um arquivo `.env` na raiz do projeto:
+
 ```
 GEMINI_API_KEY=coloque_sua_chave_aqui
 ```
