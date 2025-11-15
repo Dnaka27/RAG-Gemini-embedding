@@ -1,6 +1,6 @@
 # Conversa com PDFs usando RAG + Gemini
 
-Este projeto implementa um pipeline de **RAG (Retrieval-Augmented Generation)** com **Google Gemini** para permitir que você faça perguntas sobre o conteúdo de um PDF e obtenha respostas contextuais em linguagem natural.
+Este projeto implementa **RAG (Retrieval-Augmented Generation)** com **Google Gemini** de forma simples para permitir que você faça perguntas sobre o conteúdo de um PDF e obtenha respostas contextuais em linguagem natural.
 
 ## 🚀 Funcionalidades
 - Extração de texto de documentos PDF.
