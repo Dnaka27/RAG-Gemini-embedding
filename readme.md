@@ -1,94 +1,68 @@
-# Conversa com PDFs usando RAG + Gemini
+# RAG com Gemini — Banco Vetorial e Consulta
 
-Este projeto implementa **RAG (Retrieval-Augmented Generation)** com **Google Gemini** de forma simples para permitir que você faça perguntas sobre o conteúdo de um PDF e obtenha respostas contextuais em linguagem natural.
+Este projeto implementa RAG simples usando Google Gemini para geração e embeddings, FAISS para busca vetorial e um arquivo Markdown como base para respostas contextuais.
 
-## 🚀 Funcionalidades
-- Extração de texto de documentos PDF.
-- Divisão do texto em chunks otimizados para embeddings.
-- Criação de base vetorial local usando **ChromaDB**.
-- Geração de embeddings com **Google Generative AI**.
-- Uso do modelo **Gemini 2.5 Flash** para responder perguntas.
-- Interface simples em linha de comando para interação.
+## Funcionalidades
+- Leitura de um arquivo `.md`
+- Chunking dinâmico com overlap
+- Geração de embeddings (gemini-embedding-001)
+- Criação de banco FAISS
+- Consulta vetorial e resposta contextualizada
 
----
-
-## 🛠️ Tecnologias Utilizadas
-- [Python](https://www.python.org/)  
-- [LangChain](https://www.langchain.com/)  
-- [Chroma](https://www.trychroma.com/)  
-- [Google Generative AI](https://ai.google.dev/)  
-- [dotenv](https://pypi.org/project/python-dotenv/)  
-
----
-
-## 📂 Estrutura do Projeto
+## Estrutura do Projeto
 ```
-.
-├── main.py                # Script principal
-├── sample_apostila.pdf    # Exemplo de PDF para testes
-├── chroma_db/             # Base vetorial persistida
-├── .env                   # Contém a variável GEMINI_API_KEY
-└── README.md
+project/
+├── reference.md
+├── storage/
+│   ├── vector_db.index
+│   └── schema_chunks.json
+└── notebook.ipynb
 ```
 
----
-
-## ⚙️ Configuração
-
-### 1. Clone o repositório
-```bash
-git clone https://github.com/Dnaka27/RAG-Gemini-embedding.git
-cd RAG-Gemini-embedding
+## Instalação
+Crie um ambiente virtual:
 ```
-
-### 2. Crie um ambiente virtual
-```bash
 python -m venv .venv
 ```
+Ative:
+- Windows: `.venv\Scripts\activate`
+- Linux/Mac: `source .venv/bin/activate`
 
-Ative o ambiente:
-
-**Linux / MacOS**
-```bash
-source .venv/bin/activate
+Instale as dependências:
 ```
-
-**Windows**
-```bash
-.venv\Scripts\activate
-```
-
-### 3. Instale as dependências
-```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure sua chave da API Gemini
-Crie um arquivo `.env` na raiz do projeto:
+## Variáveis de Ambiente
 
+Para executar o projeto, é necessário criar uma chave de API do Google Gemini.
+A chave pode ser gerada acessando o site oficial do Google AI Studio:
+https://aistudio.google.com/
+
+Crie um arquivo `.env` com:
 ```
-GEMINI_API_KEY=coloque_sua_chave_aqui
-```
-
----
-
-## ▶️ Uso
-Coloque o PDF que deseja consultar na pasta do projeto e ajuste o caminho em `pdf_path` no código.
-
-Execute o script:
-```bash
-python main.py
+GEMINI_API_KEY=sua_chave
 ```
 
-Você verá:
+## Uso
+Coloque `reference.md` na raiz e execute o notebook:
 ```
-Pronto para conversar com seu PDF. Digite 'sair' para encerrar.
-Sua pergunta:
+jupyter notebook
 ```
+Ele irá:
+1. Ler o arquivo
+2. Realizar chunking
+3. Gerar embeddings
+4. Criar o banco FAISS
+5. Permitir consultas via input
 
-Agora, basta fazer perguntas em português sobre o PDF.
+## Funcionamento do RAG
+O pipeline aplica chunking, gera embeddings dos trechos, salva o banco FAISS, cria embeddings da pergunta, recupera os trechos mais próximos e envia um prompt ao Gemini contendo contexto + pergunta.
 
----
-
-## 📜 Licença
-Este projeto é open-source sob a licença MIT.
+## Requisitos principais
+- google-genai
+- faiss-cpu
+- numpy
+- python-dotenv
+- tqdm
+- ipython
