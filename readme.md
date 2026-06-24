@@ -1,66 +1,67 @@
-# RAG com Gemini — Banco Vetorial e Consulta
+# RAG with Gemini — Vector Search and Contextual Q&A
 
-Este projeto implementa RAG simples usando Google Gemini para geração e embeddings, FAISS para busca vetorial e um arquivo Markdown como base para respostas contextuais.
+Simple RAG pipeline using Google Gemini for generation and embeddings, with FAISS for vector search.
 
-## Funcionalidades
-- Leitura de um arquivo `.md`
-- Chunking dinâmico com overlap
-- Geração de embeddings (gemini-embedding-001)
-- Criação de banco FAISS
-- Consulta vetorial e resposta contextualizada
+---
 
-## Estrutura do Projeto
+## Technologies
+
+![Python](https://img.shields.io/badge/Python-1F2194?style=for-the-badge&logo=python&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini%20API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
+![FAISS](https://img.shields.io/badge/FAISS-00599C?style=for-the-badge&logo=meta&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white)
+
+---
+
+## About
+
+Implements a retrieval-augmented generation pipeline from scratch. A Markdown file serves as the knowledge base. The pipeline chunks the content with overlap, generates embeddings using `gemini-embedding-001`, stores them in a FAISS index, and answers questions by retrieving the most relevant chunks and passing them as context to the Gemini model.
+
 ```
 project/
-├── reference.md
+├── reference.md          # Knowledge base
+├── main.ipynb            # Pipeline notebook
 ├── storage/
-│   ├── vector_db.index
+│   ├── vector_db.index   # FAISS index
 │   └── schema_chunks.json
-└── notebook.ipynb
+└── app.py
 ```
 
-## Instalação
-Crie um ambiente virtual:
-```
+---
+
+## Installation
+
+```bash
 python -m venv .venv
-```
-Ative:
-- Windows: `.venv\Scripts\activate`
-- Linux/Mac: `source .venv/bin/activate`
 
-Instale as dependências:
-```
-pip install -r requirements.txt
-```
+# Windows
+.venv\Scripts\activate
 
-## Variáveis de Ambiente
+# Linux / Mac
+source .venv/bin/activate
 
-Para executar o projeto, é necessário criar uma chave de API do Google Gemini.
-A chave pode ser gerada acessando o site oficial do Google AI Studio:
-https://aistudio.google.com/
-
-Crie um arquivo `.env` com:
-```
-GEMINI_API_KEY=sua_chave
+pip install -r requirement.txt
 ```
 
-## Uso
-Coloque `reference.md` na raiz e execute o notebook
+Create a `.env` file:
 
-Ele irá:
-1. Ler o arquivo
-2. Realizar chunking
-3. Gerar embeddings
-4. Criar o banco FAISS
-5. Permitir consultas via input
+```env
+GEMINI_API_KEY=your_key_here
+```
 
-## Funcionamento do RAG
-O pipeline aplica chunking, gera embeddings dos trechos, salva o banco FAISS, cria embeddings da pergunta, recupera os trechos mais próximos e envia um prompt ao Gemini contendo contexto + pergunta.
+Get your key at [Google AI Studio](https://aistudio.google.com/).
 
-## Requisitos principais
-- google-genai
-- faiss-cpu
-- numpy
-- python-dotenv
-- tqdm
-- ipython
+Place your `reference.md` in the project root, then open `main.ipynb` and run all cells.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+## Contact
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-78d?style=for-the-badge&logo=linkedin&logoColor=0A0AAF)](https://www.linkedin.com/in/diogo-oike-kanefuku-23639b223/) 
+[![E-mail](https://img.shields.io/badge/-Email-e9a?style=for-the-badge&logo=gmail&logoColor=E94D5F)](mailto:diogooikejapan@gmail.com)
