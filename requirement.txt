@@ -1,5 +1,5 @@
-google-genai
-faiss-cpu
-numpy
-python-dotenv
-tqdm
+google-genai==1.38.0
+chromadb==1.5.1
+python-dotenv==1.1.1
+tqdm==4.67.1
+streamlit==1.55.0
