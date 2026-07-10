@@ -9,7 +9,7 @@ def get_collection(persist_dir=PERSIST_DIR, name=COLLECTION_NAME):
 
 
 def reset_collection(persist_dir=PERSIST_DIR, name=COLLECTION_NAME):
-    """Recria a collection do zero (usado ao reprocessar um documento)."""
+    """Recreates the collection from scratch (used when reprocessing a document)."""
     client = chromadb.PersistentClient(path=persist_dir)
     if name in {c.name for c in client.list_collections()}:
         client.delete_collection(name=name)
@@ -22,7 +22,7 @@ def add_chunks(collection, chunks, embeddings):
 
 
 def retrieve(collection, query_embedding, top_k=5):
-    """Busca os chunks mais próximos e retorna texto + distância de cada um."""
+    """Finds the closest chunks and returns text + distance for each one."""
     result = collection.query(query_embeddings=[query_embedding], n_results=top_k)
     return [
         {"text": text, "distance": distance}

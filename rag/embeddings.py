@@ -7,13 +7,13 @@ from .config import EMBEDDING_DIM, EMBEDDING_MODEL
 
 
 def embed_text(client, text, task="document", max_retries=5):
-    """Gera o embedding de um único texto.
+    """Generates the embedding for a single text.
 
-    gemini-embedding-2 não usa mais o parâmetro `task_type`: a instrução de
-    tarefa vai embutida no próprio texto de entrada. Chamamos o modelo com
-    UM texto por vez (nunca uma lista) porque, ao contrário do
-    gemini-embedding-001, uma lista de `contents` é agregada em um único
-    embedding combinado, em vez de gerar um embedding por item.
+    gemini-embedding-2 no longer uses the `task_type` parameter: the task
+    instruction is embedded directly in the input text. We call the model
+    with ONE text at a time (never a list) because, unlike
+    gemini-embedding-001, a list of `contents` is aggregated into a single
+    combined embedding, instead of producing one embedding per item.
     """
     prefix = "task: search query\nquery: " if task == "query" else "task: search document\ntext: "
     formatted = f"{prefix}{text}"
