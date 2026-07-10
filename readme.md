@@ -14,6 +14,14 @@ Simple RAG pipeline using Google Gemini for generation and embeddings, with Chro
 
 ---
 
+## Sample
+
+<div align="center">
+    <img width="720" height="480" alt="Image" src="https://github.com/user-attachments/assets/9a683b5a-f993-48df-94e2-c838438830a1" />
+</div>
+
+---
+
 ## About
 
 Implements a retrieval-augmented generation pipeline from scratch. A Markdown file serves as the knowledge base. The pipeline chunks the content with overlap, generates embeddings using `gemini-embedding-2`, stores them in a ChromaDB collection persisted to disk, and answers questions using `gemini-3.5-flash` by retrieving the most relevant chunks and passing them as context.
