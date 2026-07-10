@@ -48,7 +48,7 @@ if uploaded_file:
     with st.expander("View file content:"):
         st.code(raw_text)
 
-    st.write(f"Text length: **{len(raw_text)}** characters")
+    st.write(f"Text length: `{len(raw_text)}` characters")
 
     st.divider()
 

@@ -1,11 +1,11 @@
 def chunk_text(text, max_size=1500, overlap=100):
-    """Chunking dinâmico por caracteres, com sobreposição entre blocos.
+    """Dynamic character-based chunking, with overlap between chunks.
 
-    Quando o corte cairia no meio de uma palavra, recua até o espaço em
-    branco mais próximo antes do limite, evitando quebrar uma palavra ao meio.
+    When the cut would fall in the middle of a word, it backs up to the
+    nearest whitespace before the limit, avoiding splitting a word in half.
     """
     if overlap >= max_size:
-        raise ValueError("overlap deve ser menor que max_size")
+        raise ValueError("overlap must be smaller than max_size")
 
     text = text.strip()
     if len(text) <= max_size:

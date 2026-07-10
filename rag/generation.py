@@ -3,14 +3,14 @@ from .config import GENERATION_MODEL
 
 def generate_answer(client, question, context, temperature=0.7):
     prompt = f"""
-Baseie a resposta **somente** no contexto abaixo:
+Base the answer **only** on the context below:
 
 {context}
 
-Pergunta:
+Question:
 {question}
 
-Responda de forma objetiva e clara.
+Answer objectively and clearly.
 """
     resp = client.models.generate_content(
         model=GENERATION_MODEL,
