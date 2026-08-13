@@ -1,53 +1,55 @@
-# RAG with Gemini — Vector Search and Contextual Q&A
+# RAG with Gemini
 
-Simple RAG pipeline using Google Gemini for generation and embeddings, with ChromaDB for vector search.
+Web application for uploading Markdown documents and asking questions grounded in their content.
 
 ---
 
 ## Technologies
 
 ![Python](https://img.shields.io/badge/Python-1F2194?style=for-the-badge&logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Gemini%20API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
-![ChromaDB](https://img.shields.io/badge/ChromaDB-00599C?style=for-the-badge&logo=meta&logoColor=white)
-![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
-
----
-
-## Sample
-
-<div align="center">
-    <img width="720" height="480" alt="Image" src="https://github.com/user-attachments/assets/9a683b5a-f993-48df-94e2-c838438830a1" />
-</div>
+![HTMX](https://img.shields.io/badge/HTMX-3366CC?style=for-the-badge&logo=htmx&logoColor=white)
 
 ---
 
 ## About
 
-Implements a retrieval-augmented generation pipeline from scratch. A Markdown file serves as the knowledge base. The pipeline chunks the content with overlap, generates embeddings using `gemini-embedding-2`, stores them in a ChromaDB collection persisted to disk, and answers questions using `gemini-3.5-flash` by retrieving the most relevant chunks and passing them as context.
+This project implements a small retrieval-augmented generation (RAG) application using Google Gemini embeddings and text generation.
 
-Two equivalent entry points share the same core logic, organized as the `rag/` package:
+The user uploads a UTF-8 Markdown document, which is split into overlapping chunks and embedded. Questions are embedded and matched against the document chunks. Gemini then generates an answer using only the retrieved context.
 
-- **`main.ipynb`** — the pipeline explained step by step, with detailed markdown cells
-- **`app.py`** — the same pipeline behind a Streamlit UI
+The application uses Django with server-rendered HTML, CSS and HTMX. The active document index is kept in process memory, which keeps the project compatible with a Vercel-only deployment without requiring an external database or storage service.
 
-> `gemini-embedding-2` is a recent multimodal embedding model. Its embedding space is **not compatible** with the older `gemini-embedding-001` — re-embed your data if migrating.
+> Because Vercel functions can restart, the document may need to be uploaded and processed again before a new question.
 
-```
-project/
-├── data/
-│   └── reference.md      # Knowledge base
-├── main.ipynb            # Pipeline notebook (explained step by step)
-├── app.py                # Streamlit app
-├── rag/                  # Core pipeline package
-│   ├── config.py         # Model names, dimensions, storage paths
-│   ├── client.py         # Gemini client
-│   ├── chunking.py       # Dynamic chunking
-│   ├── embeddings.py     # gemini-embedding-2 calls (with retry)
-│   ├── vector_store.py   # ChromaDB collection helpers
-│   └── generation.py     # gemini-3.5-flash answer generation
-└── storage/
-    └── chroma_db/        # ChromaDB persisted collection (generated on first run)
+---
+
+## Project structure
+
+```text
+config/
+├── settings.py       # Django and environment configuration
+├── urls.py           # Project routes
+└── wsgi.py           # Vercel/WSGI entrypoint
+
+rag/
+├── chunking.py       # Document chunking
+├── client.py         # Gemini client
+├── config.py         # Model configuration
+├── embeddings.py     # Document and query embeddings
+├── generation.py     # Context-grounded answer generation
+└── services.py       # In-memory RAG orchestration
+
+web/
+├── forms.py          # Markdown upload validation
+├── urls.py           # Application routes
+└── views.py          # Upload and question endpoints
+
+templates/            # Django HTML templates and HTMX partials
+static/               # Application styles
+manage.py             # Django command-line entrypoint
+requirements.txt      # Python dependencies
 ```
 
 ---
@@ -60,24 +62,57 @@ python -m venv .venv
 # Windows
 .venv\Scripts\activate
 
-# Linux / Mac
+# Linux/macOS
 source .venv/bin/activate
 
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
-Create a `.env` file:
+Create a `.env` file in the project root:
 
 ```env
-GEMINI_API_KEY=your_key_here
+GEMINI_API_KEY=your_api_key_here
+DJANGO_SECRET_KEY=your_secret_key_here
+DEBUG=1
+ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
-Get your key at [Google AI Studio](https://aistudio.google.com/).
+Get a Gemini API key from [Google AI Studio](https://aistudio.google.com/).
 
-Then, either:
+---
 
-- **Notebook**: place your `reference.md` in `data/`, open `main.ipynb` and run all cells, or
-- **Streamlit app**: run `streamlit run app.py` and upload any `.md` file through the UI (no need to touch `data/`)
+## Running locally
+
+```bash
+python manage.py check
+python manage.py runserver
+```
+
+Open `http://127.0.0.1:8000/` in your browser.
+
+## Application flow
+
+1. Upload a UTF-8 `.md` file.
+2. Process the document and generate its embeddings.
+3. Ask a question about the uploaded content.
+4. Receive an answer based only on the most relevant retrieved chunks.
+
+The upload accepts Markdown files up to 2 MB. The active index is stored only in memory and is cleared when the application process restarts.
+
+---
+
+## Deploying to Vercel
+
+Import the repository into Vercel and configure these environment variables:
+
+```env
+DJANGO_SECRET_KEY=your_production_secret
+GEMINI_API_KEY=your_api_key
+DEBUG=0
+ALLOWED_HOSTS=your-project.vercel.app
+```
+
+The deployment does not require an external database, queue or storage service. Static files are served from the Django static directory.
 
 ---
 
@@ -89,5 +124,5 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-78d?style=for-the-badge&logo=linkedin&logoColor=0A0AAF)](https://www.linkedin.com/in/diogo-oike-kanefuku-23639b223/) 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-78d?style=for-the-badge&logo=linkedin&logoColor=0A0AAF)](https://www.linkedin.com/in/diogo-oike-kanefuku-23639b223/)
 [![E-mail](https://img.shields.io/badge/-Email-e9a?style=for-the-badge&logo=gmail&logoColor=E94D5F)](mailto:diogooikejapan@gmail.com)
