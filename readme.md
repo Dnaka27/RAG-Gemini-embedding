@@ -17,11 +17,24 @@ Web application for uploading Markdown documents and asking questions grounded i
 
 This project implements a small retrieval-augmented generation (RAG) application using Google Gemini embeddings and text generation.
 
-The user uploads a UTF-8 Markdown document, which is split into overlapping chunks and embedded. Questions are embedded and matched against the document chunks. Gemini then generates an answer using only the retrieved context.
+The user uploads a UTF-8 Markdown document, which is split into overlapping chunks and embedded. Questions are embedded and matched against the document chunks by cosine distance. Gemini then generates an answer using only the retrieved context.
 
-The application uses Django with server-rendered HTML, CSS and HTMX. The active document index is kept in process memory, which keeps the project compatible with a Vercel-only deployment without requiring an external database or storage service.
+The application uses Django with server-rendered HTML, CSS and HTMX — no frontend framework. The active document index is kept in process memory, which keeps the project compatible with a Vercel-only deployment without requiring an external database or storage service.
 
 > Because Vercel functions can restart, the document may need to be uploaded and processed again before a new question.
+
+Each answer is shown alongside a small radial diagram that plots the retrieved passages by their real cosine distance to the question — closer to the center means more relevant, and the ranking shown matches the numbered passages listed below it.
+
+---
+
+## Interface
+
+The active look is **Signal**, a dark amber-on-near-black theme (`static/css/app.css`, JetBrains Mono + Space Grotesk) built around that same retrieval diagram: a rotating radar sweep inside the plot, a blinking terminal cursor on the headline, and subtle fade-in transitions on HTMX swaps. All motion is CSS-only (`transform`/`opacity`), contained to small elements, and disabled under `prefers-reduced-motion`.
+
+Two alternate themes ship unused in `static/css/` and can be swapped in by copying their contents into `app.css` and updating the Google Fonts link in `templates/web/base.html`:
+
+- `theme-marginalia.css` — warm editorial serif (Fraunces + Public Sans + Space Mono), indigo ink, drop-cap answers.
+- `theme-blueprint.css` — pale technical schematic (Barlow Condensed + Archivo + Roboto Mono), sharp corners, dashed dimension lines.
 
 ---
 
@@ -44,10 +57,18 @@ rag/
 web/
 ├── forms.py          # Markdown upload validation
 ├── urls.py           # Application routes
-└── views.py          # Upload and question endpoints
+└── views.py          # Upload/question endpoints + retrieval-plot geometry
 
-templates/            # Django HTML templates and HTMX partials
-static/               # Application styles
+templates/web/
+├── base.html          # Shell, hero, ambient retrieval plot
+├── home.html          # Upload + question forms
+└── partials/          # HTMX swap targets (answer, upload result, error)
+
+static/css/
+├── app.css             # Active theme (Signal)
+├── theme-marginalia.css  # Alternate theme, not loaded by default
+└── theme-blueprint.css   # Alternate theme, not loaded by default
+
 manage.py             # Django command-line entrypoint
 requirements.txt      # Python dependencies
 ```
@@ -103,7 +124,7 @@ The upload accepts Markdown files up to 2 MB. The active index is stored only in
 
 ## Deploying to Vercel
 
-Import the repository into Vercel and configure these environment variables:
+Vercel detects Django automatically from `manage.py` and `requirements.txt` — no `vercel.json` is required. Import the repository into Vercel and configure these environment variables:
 
 ```env
 DJANGO_SECRET_KEY=your_production_secret
@@ -112,7 +133,9 @@ DEBUG=0
 ALLOWED_HOSTS=your-project.vercel.app
 ```
 
-The deployment does not require an external database, queue or storage service. Static files are served from the Django static directory.
+`settings.py` derives `CSRF_TRUSTED_ORIGINS` from `ALLOWED_HOSTS` automatically (Django's CSRF check needs the scheme spelled out behind Vercel's proxy) and appends the deployment's own `VERCEL_URL` to `ALLOWED_HOSTS`, so preview deployments work without extra configuration.
+
+The deployment does not require an external database, queue or storage service. Static files are collected and served from Vercel's CDN.
 
 ---
 
