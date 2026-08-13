@@ -6,12 +6,12 @@
       <span class="stage-tag">Stage 01 &middot; Ingest</span>
       <h2 id="upload-heading">Load a document</h2>
     </div>
-    <span class="stage-note">.md, up to 2 MB</span>
+    <span class="stage-note">.md, .txt, .pdf &middot; up to 2 MB</span>
   </div>
   <form hx-post="{% url 'web:upload_document' %}" hx-target="#upload-result" hx-swap="innerHTML" enctype="multipart/form-data">
     {% csrf_token %}
     <label class="dropzone" for="id_document">
-      <span>Choose a .md file</span>
+      <span>Choose a .md, .txt, or .pdf file</span>
       {{ upload_form.document }}
     </label>
     <div class="field-row">

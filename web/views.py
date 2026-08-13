@@ -6,6 +6,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from .forms import DocumentUploadForm
 from rag import services
+from rag.extraction import extract_text
 
 PLOT_SIZE = 200
 PLOT_CENTER = PLOT_SIZE / 2
@@ -25,9 +26,11 @@ def upload_document(request: HttpRequest) -> HttpResponse:
         return render(request, "web/partials/upload_result.html", {"form": form, "has_context": False}, status=400)
 
     document = form.cleaned_data["document"]
-    text = document.read().decode("utf-8")
     try:
+        text = extract_text(document)
         chunk_count = services.process_document(text, form.cleaned_data["max_size"], form.cleaned_data["overlap"])
+    except ValueError as exc:
+        return render(request, "web/partials/error.html", {"message": str(exc)}, status=400)
     except Exception as exc:
         return render(request, "web/partials/error.html", {"message": _safe_error(exc)}, status=502)
     return render(request, "web/partials/upload_result.html", {"success": True, "chunk_count": chunk_count, "has_context": True})
