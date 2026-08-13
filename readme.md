@@ -1,6 +1,6 @@
 # RAG with Gemini
 
-Web application for uploading Markdown documents and asking questions grounded in their content.
+Web application for uploading Markdown, text, or PDF documents and asking questions grounded in their content.
 
 ---
 
@@ -17,7 +17,7 @@ Web application for uploading Markdown documents and asking questions grounded i
 
 This project implements a small retrieval-augmented generation (RAG) application using Google Gemini embeddings and text generation.
 
-The user uploads a UTF-8 Markdown document, which is split into overlapping chunks and embedded. Questions are embedded and matched against the document chunks by cosine distance. Gemini then generates an answer using only the retrieved context.
+The user uploads a Markdown, text, or PDF document, which is split into overlapping chunks and embedded. Questions are embedded and matched against the document chunks by cosine distance. Gemini then generates an answer using only the retrieved context.
 
 The application uses Django with server-rendered HTML, CSS and HTMX — no frontend framework. The active document index is kept in process memory, which keeps the project compatible with a Vercel-only deployment without requiring an external database or storage service.
 
@@ -51,11 +51,12 @@ rag/
 ├── client.py         # Gemini client
 ├── config.py         # Model configuration
 ├── embeddings.py     # Document and query embeddings
+├── extraction.py     # Text extraction from .md/.txt/.pdf uploads
 ├── generation.py     # Context-grounded answer generation
 └── services.py       # In-memory RAG orchestration
 
 web/
-├── forms.py          # Markdown upload validation
+├── forms.py          # Upload validation (extension, size, UTF-8)
 ├── urls.py           # Application routes
 └── views.py          # Upload/question endpoints + retrieval-plot geometry
 
@@ -113,12 +114,12 @@ Open `http://127.0.0.1:8000/` in your browser.
 
 ## Application flow
 
-1. Upload a UTF-8 `.md` file.
+1. Upload a `.md`, `.txt`, or `.pdf` file.
 2. Process the document and generate its embeddings.
 3. Ask a question about the uploaded content.
 4. Receive an answer based only on the most relevant retrieved chunks.
 
-The upload accepts Markdown files up to 2 MB. The active index is stored only in memory and is cleared when the application process restarts.
+The upload accepts Markdown, txt or PDF files up to 2 MB. The active index is stored only in memory and is cleared when the application process restarts.
 
 ---
 
