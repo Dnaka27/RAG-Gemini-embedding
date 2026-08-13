@@ -1,5 +1,12 @@
 {% if success %}
-<div class="notice success" role="status">Document processed successfully. {{ chunk_count }} chunks are ready for questions.</div>
+<div class="notice success" role="status">
+  <span class="notice-tag">Processed</span>
+  <span>{{ chunk_count }} chunk{{ chunk_count|pluralize }} ready for questions.</span>
+</div>
+<span id="context-status" hx-swap-oob="true" class="stage-note is-ready">Document ready</span>
 {% elif form.errors %}
-<div class="notice error" role="alert">{{ form.errors }}</div>
+<div class="notice error" role="alert">
+  <span class="notice-tag">Error</span>
+  <span>{{ form.errors }}</span>
+</div>
 {% endif %}
