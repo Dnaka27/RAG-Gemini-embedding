@@ -1,39 +1,47 @@
 {% extends "web/base.html" %}
 {% block content %}
 <section class="panel" aria-labelledby="upload-heading">
-  <div class="section-heading">
-    <div><span class="step">01</span><h2 id="upload-heading">Load a document</h2></div>
-    <p>Markdown files up to 2 MB</p>
+  <div class="stage-head">
+    <div>
+      <span class="stage-tag">Stage 01 &middot; Ingest</span>
+      <h2 id="upload-heading">Load a document</h2>
+    </div>
+    <span class="stage-note">.md, up to 2 MB</span>
   </div>
   <form hx-post="{% url 'web:upload_document' %}" hx-target="#upload-result" hx-swap="innerHTML" enctype="multipart/form-data">
     {% csrf_token %}
-    <label class="file-input" for="id_document">
+    <label class="dropzone" for="id_document">
       <span>Choose a .md file</span>
       {{ upload_form.document }}
     </label>
-    <div class="settings">
+    <div class="field-row">
       <label>Chunk size {{ upload_form.max_size }}</label>
       <label>Overlap {{ upload_form.overlap }}</label>
     </div>
-    <button class="button" type="submit">Process document <span aria-hidden="true">→</span></button>
+    <button class="button" type="submit">Process document <span aria-hidden="true">&rarr;</span></button>
   </form>
   <div id="upload-result" aria-live="polite"></div>
 </section>
 
 <section class="panel" aria-labelledby="question-heading">
-  <div class="section-heading">
-    <div><span class="step">02</span><h2 id="question-heading">Ask a question</h2></div>
-    <p>Answers use retrieved context only</p>
+  <div class="stage-head">
+    <div>
+      <span class="stage-tag">Stage 02 &middot; Retrieve + generate</span>
+      <h2 id="question-heading">Ask a question</h2>
+    </div>
+    <span id="context-status" class="stage-note{% if has_context %} is-ready{% endif %}">
+      {% if has_context %}Document ready{% else %}Upload a document first{% endif %}
+    </span>
   </div>
   <form hx-post="{% url 'web:ask_question' %}" hx-target="#answer-result" hx-swap="innerHTML" hx-indicator="#question-loading">
     {% csrf_token %}
     <label class="sr-only" for="question">Your question</label>
     <textarea id="question" name="question" rows="4" maxlength="2000" placeholder="What would you like to know?" required></textarea>
-    <button class="button" type="submit">Ask Gemini <span aria-hidden="true">→</span></button>
-    <span id="question-loading" class="htmx-indicator" role="status">Searching the document...</span>
+    <button class="button" type="submit">Ask Gemini <span aria-hidden="true">&rarr;</span></button>
+    <span id="question-loading" class="htmx-indicator" role="status">Searching the document<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>
   </form>
   <div id="answer-result" aria-live="polite"></div>
 </section>
 
-<p class="runtime-note">The document index is held in memory and may need to be rebuilt after a server restart.</p>
+<p class="runtime-note">Index lives in memory only &mdash; reprocess after a server restart.</p>
 {% endblock %}

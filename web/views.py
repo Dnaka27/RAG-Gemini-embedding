@@ -1,9 +1,16 @@
+import math
+
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
 from .forms import DocumentUploadForm
 from rag import services
+
+PLOT_SIZE = 200
+PLOT_CENTER = PLOT_SIZE / 2
+PLOT_MIN_RADIUS = 32
+PLOT_MAX_RADIUS = 88
 
 
 @require_GET
@@ -39,7 +46,14 @@ def ask_question(request: HttpRequest) -> HttpResponse:
         return render(request, "web/partials/error.html", {"message": str(exc)}, status=409)
     except Exception as exc:
         return render(request, "web/partials/error.html", {"message": _safe_error(exc)}, status=502)
-    return render(request, "web/partials/chat_answer.html", result)
+    context = {
+        **result,
+        "plot_points": _build_retrieval_plot(result["sources"]),
+        "plot_size": PLOT_SIZE,
+        "plot_center": PLOT_CENTER,
+        "plot_sweep_y": PLOT_CENTER - PLOT_MAX_RADIUS,
+    }
+    return render(request, "web/partials/chat_answer.html", context)
 
 
 def _safe_error(error):
@@ -47,3 +61,22 @@ def _safe_error(error):
     if "GEMINI_API_KEY" in message:
         return "Gemini is not configured. Set GEMINI_API_KEY and try again."
     return "The document could not be processed. Check the file and try again."
+
+
+def _build_retrieval_plot(sources):
+    """Place retrieved chunks on a circle, radius scaled by their real distance.
+
+    Purely presentational: makes the abstract cosine-distance ranking visible
+    next to the answer, using the same distance values already shown below.
+    """
+    if not sources:
+        return []
+    max_distance = max(item["distance"] for item in sources) or 1e-9
+    points = []
+    for index, item in enumerate(sources):
+        angle = -math.pi / 2 + (2 * math.pi * index / len(sources))
+        radius = PLOT_MIN_RADIUS + (item["distance"] / max_distance) * (PLOT_MAX_RADIUS - PLOT_MIN_RADIUS)
+        x = PLOT_CENTER + radius * math.cos(angle)
+        y = PLOT_CENTER + radius * math.sin(angle)
+        points.append({"x": round(x, 1), "y": round(y, 1), "label_y": round(y - 11, 1), "rank": index + 1})
+    return points

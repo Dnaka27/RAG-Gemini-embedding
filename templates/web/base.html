@@ -5,15 +5,37 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}RAG with Gemini{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
   <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
 </head>
 <body>
   <main class="shell">
     <header class="hero">
-      <p class="eyebrow">Gemini-powered document search</p>
-      <h1>Ask your document.</h1>
-      <p class="lede">Upload a Markdown file, build its context, and get answers grounded in its content.</p>
+      <div class="hero-copy">
+        <p class="eyebrow">Semantic retrieval &middot; Gemini</p>
+        <h1>Ask your document.</h1>
+        <p class="lede">Upload a Markdown file. It's split into passages, embedded, and matched against your question &mdash; Gemini answers only from what it finds.</p>
+      </div>
+      <svg class="retrieval-plot is-ambient hero-plot" viewBox="0 0 220 220" aria-hidden="true">
+        <circle class="plot-query" cx="110" cy="110" r="5"></circle>
+        <line class="plot-link" x1="110" y1="110" x2="110" y2="24"></line>
+        <line class="plot-link" x1="110" y1="110" x2="188" y2="65"></line>
+        <line class="plot-link" x1="110" y1="110" x2="196" y2="150"></line>
+        <line class="plot-link" x1="110" y1="110" x2="130" y2="196"></line>
+        <line class="plot-link" x1="110" y1="110" x2="40" y2="180"></line>
+        <line class="plot-link" x1="110" y1="110" x2="26" y2="95"></line>
+        <circle class="plot-node" cx="110" cy="24" r="5"></circle>
+        <circle class="plot-node" cx="188" cy="65" r="5"></circle>
+        <circle class="plot-node" cx="196" cy="150" r="5"></circle>
+        <circle class="plot-node" cx="130" cy="196" r="5"></circle>
+        <circle class="plot-node" cx="40" cy="180" r="5"></circle>
+        <circle class="plot-node" cx="26" cy="95" r="5"></circle>
+        <line class="plot-sweep" x1="110" y1="110" x2="110" y2="26" style="transform-origin: 110px 110px"></line>
+        <circle class="plot-sweep-tip" cx="110" cy="26" r="3" style="transform-origin: 110px 110px"></circle>
+      </svg>
     </header>
     {% block content %}{% endblock %}
   </main>
