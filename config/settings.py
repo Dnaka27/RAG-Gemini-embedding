@@ -10,6 +10,16 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "local-only-insecure-key")
 DEBUG = os.getenv("DEBUG", "1").lower() in {"1", "true", "yes"}
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()]
 
+# Vercel assigns a unique *.vercel.app host to every production and preview
+# deployment; without it here, preview URLs would fail Django's host check.
+VERCEL_URL = os.getenv("VERCEL_URL")
+if VERCEL_URL:
+    ALLOWED_HOSTS.append(VERCEL_URL)
+
+# Vercel terminates TLS at its proxy, so Django's same-origin CSRF check needs
+# the scheme spelled out explicitly for every trusted host.
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host not in {"localhost", "127.0.0.1"}]
+
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
