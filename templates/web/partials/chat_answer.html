@@ -1,0 +1,10 @@
+<article class="answer">
+  <h3>Answer</h3>
+  <p class="answer-text">{{ answer }}</p>
+  <details>
+    <summary>Retrieved context ({{ sources|length }} chunks)</summary>
+    {% for source in sources %}
+    <div class="source"><small>Distance {{ source.distance|floatformat:4 }}</small><p>{{ source.text }}</p></div>
+    {% endfor %}
+  </details>
+</article>
