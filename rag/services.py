@@ -5,6 +5,7 @@ from threading import Lock
 
 from .chunking import chunk_text
 from .client import get_client
+from .config import MAX_CHUNKS, MAX_TEXT_CHARS
 from .embeddings import embed_text
 from .generation import generate_answer
 
@@ -21,9 +22,13 @@ _lock = Lock()
 
 def process_document(text, max_size=1500, overlap=100):
     """Chunk and embed a document, replacing the process-local index."""
+    if len(text) > MAX_TEXT_CHARS:
+        raise ValueError(f"The document has too much text (limit {MAX_TEXT_CHARS:,} characters). Use a shorter file.")
     chunks = chunk_text(text, max_size=max_size, overlap=overlap)
     if not chunks:
         raise ValueError("The document did not produce any chunks.")
+    if len(chunks) > MAX_CHUNKS:
+        raise ValueError(f"The document produced {len(chunks)} chunks (limit {MAX_CHUNKS}). Use a larger chunk size or a shorter file.")
 
     client = get_client()
     embeddings = [embed_text(client, chunk, task="document") for chunk in chunks]
