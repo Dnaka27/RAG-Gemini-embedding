@@ -17,4 +17,7 @@ Answer objectively and clearly.
         contents=[prompt],
         config={"temperature": temperature},
     )
-    return resp.candidates[0].content.parts[0].text
+    answer = (resp.text or "").strip()
+    if not answer:
+        raise ValueError("Gemini returned no answer (it may have been blocked or cut off). Try rephrasing the question.")
+    return answer
