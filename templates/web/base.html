@@ -10,6 +10,15 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
   <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  <script>
+    // htmx skips 4xx/5xx by default; the views answer with HTML error partials on these.
+    document.addEventListener("htmx:beforeSwap", function (event) {
+      if ([400, 409, 502].includes(event.detail.xhr.status)) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
 </head>
 <body>
   <main class="shell">
