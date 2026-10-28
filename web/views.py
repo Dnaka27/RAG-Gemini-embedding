@@ -45,10 +45,12 @@ def ask_question(request: HttpRequest) -> HttpResponse:
         return render(request, "web/partials/error.html", {"message": "The question must be 2,000 characters or fewer."}, status=400)
     try:
         result = services.ask_question(question)
+    except ValueError as exc:
+        return render(request, "web/partials/error.html", {"message": str(exc)}, status=400)
     except RuntimeError as exc:
         return render(request, "web/partials/error.html", {"message": str(exc)}, status=409)
     except Exception as exc:
-        return render(request, "web/partials/error.html", {"message": _safe_error(exc)}, status=502)
+        return render(request, "web/partials/error.html", {"message": _safe_error(exc, "The question could not be answered. Try again.")}, status=502)
     context = {
         **result,
         "plot_points": _build_retrieval_plot(result["sources"]),
@@ -59,11 +61,13 @@ def ask_question(request: HttpRequest) -> HttpResponse:
     return render(request, "web/partials/chat_answer.html", context)
 
 
-def _safe_error(error):
+def _safe_error(error, fallback="The document could not be processed. Check the file and try again."):
     message = str(error)
     if "GEMINI_API_KEY" in message:
         return "Gemini is not configured. Set GEMINI_API_KEY and try again."
-    return "The document could not be processed. Check the file and try again."
+    if getattr(error, "code", None) == 429:
+        return "Gemini rate limit reached. Wait a moment and try again."
+    return fallback
 
 
 def _build_retrieval_plot(sources):
