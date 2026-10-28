@@ -1,13 +1,19 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "local-only-insecure-key")
-DEBUG = os.getenv("DEBUG", "1").lower() in {"1", "true", "yes"}
+DEBUG = os.getenv("DEBUG", "0").lower() in {"1", "true", "yes"}
+
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set when DEBUG is off.")
+    SECRET_KEY = "local-only-insecure-key"
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()]
 
 # Vercel assigns a unique *.vercel.app host to every production and preview
