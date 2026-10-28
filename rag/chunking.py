@@ -12,16 +12,19 @@ def chunk_text(text, max_size=1500, overlap=100):
         return [text]
 
     chunks = []
-    step = max_size - overlap
     start = 0
     while start < len(text):
         end = min(start + max_size, len(text))
         if end < len(text):
-            boundary = text.rfind(" ", start, end)
+            boundary = max(text.rfind(" ", start, end), text.rfind("\n", start, end))
             if boundary > start:
                 end = boundary
         chunk = text[start:end].strip()
         if chunk:
             chunks.append(chunk)
-        start += step
+        if end >= len(text):
+            break
+        # Overlap is measured from where the chunk really ended, so backing up
+        # to a boundary never leaves a gap; always advance at least one char.
+        start = max(end - overlap, start + 1)
     return chunks
