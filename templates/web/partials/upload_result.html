@@ -3,6 +3,18 @@
   <span class="notice-tag">Processed</span>
   <span>{{ chunk_count }} chunk{{ chunk_count|pluralize }} ready for questions.</span>
 </div>
+{% if chunk_previews %}
+<details class="chunk-preview">
+  <summary>Chunk preview ({{ chunk_count }})</summary>
+  {% for chunk in chunk_previews %}
+  <div class="chunk">
+    <span class="chunk-meta">#{{ chunk.number }} &middot; {{ chunk.size }} chars</span>
+    <p>{{ chunk.text }}</p>
+  </div>
+  {% endfor %}
+  {% if chunks_hidden > 0 %}<p class="chunk-more">+ {{ chunks_hidden }} more</p>{% endif %}
+</details>
+{% endif %}
 <span id="context-status" hx-swap-oob="true" class="stage-note is-ready">Document ready</span>
 {% elif form.errors %}
 <div class="notice error" role="alert">

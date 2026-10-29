@@ -1,47 +1,99 @@
 {% extends "web/base.html" %}
 {% block content %}
-<section class="panel" aria-labelledby="upload-heading">
-  <div class="stage-head">
-    <div>
-      <span class="stage-tag">Stage 01 &middot; Ingest</span>
-      <h2 id="upload-heading">Load a document</h2>
-    </div>
-    <span class="stage-note">.md, .txt, .pdf &middot; up to 2 MB</span>
-  </div>
-  <form hx-post="{% url 'web:upload_document' %}" hx-target="#upload-result" hx-swap="innerHTML" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label class="dropzone" for="id_document">
-      <span>Choose a .md, .txt, or .pdf file</span>
-      {{ upload_form.document }}
-    </label>
-    <div class="field-row">
-      <label>Chunk size {{ upload_form.max_size }}</label>
-      <label>Overlap {{ upload_form.overlap }}</label>
-    </div>
-    <button class="button" type="submit">Process document <span aria-hidden="true">&rarr;</span></button>
-  </form>
-  <div id="upload-result" aria-live="polite"></div>
-</section>
+<details class="howto">
+  <summary>How it works</summary>
+  <ol class="pipeline" aria-label="How it works">
+    <li><span class="pipeline-num">01</span><strong>Chunk</strong><span>Text is split into overlapping passages.</span></li>
+    <li><span class="pipeline-num">02</span><strong>Embed</strong><span>Each passage becomes a 768-dim vector.</span></li>
+    <li><span class="pipeline-num">03</span><strong>Retrieve</strong><span>Your question is matched by cosine distance.</span></li>
+    <li><span class="pipeline-num">04</span><strong>Generate</strong><span>Gemini answers only from the top passages.</span></li>
+  </ol>
+  <p class="runtime-note">Index lives in memory only &mdash; reprocess after a server restart.</p>
+</details>
 
-<section class="panel" aria-labelledby="question-heading">
-  <div class="stage-head">
-    <div>
-      <span class="stage-tag">Stage 02 &middot; Retrieve + generate</span>
-      <h2 id="question-heading">Ask a question</h2>
+<div class="workspace">
+  <section class="panel" aria-labelledby="upload-heading">
+    <div class="stage-head">
+      <div>
+        <span class="stage-tag">Stage 01 &middot; Ingest</span>
+        <h2 id="upload-heading">Load a document</h2>
+      </div>
+      <span class="stage-note">.md, .txt, .pdf &middot; up to 2 MB</span>
     </div>
-    <span id="context-status" class="stage-note{% if has_context %} is-ready{% endif %}">
-      {% if has_context %}Document ready{% else %}Upload a document first{% endif %}
-    </span>
-  </div>
-  <form hx-post="{% url 'web:ask_question' %}" hx-target="#answer-result" hx-swap="innerHTML" hx-indicator="#question-loading">
-    {% csrf_token %}
-    <label class="sr-only" for="question">Your question</label>
-    <textarea id="question" name="question" rows="4" maxlength="2000" placeholder="What would you like to know?" required></textarea>
-    <button class="button" type="submit">Ask Gemini <span aria-hidden="true">&rarr;</span></button>
-    <span id="question-loading" class="htmx-indicator" role="status">Searching the document<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>
-  </form>
-  <div id="answer-result" aria-live="polite"></div>
-</section>
+    <form hx-post="{% url 'web:upload_document' %}" hx-target="#upload-result" hx-swap="innerHTML" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label class="dropzone" for="id_document">
+        <span>Choose a file</span>
+        {{ upload_form.document }}
+      </label>
+      <div class="field-row">
+        <label>Chunk size {{ upload_form.max_size }}</label>
+        <label>Overlap {{ upload_form.overlap }}</label>
+      </div>
+      <div class="actions">
+        <button class="button" type="submit">Process <span aria-hidden="true">&rarr;</span></button>
+        <button class="button button-ghost" type="button" hx-post="{% url 'web:clear_document' %}" hx-target="#upload-result" hx-swap="innerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Clear</button>
+      </div>
+    </form>
+    <div id="upload-result" aria-live="polite"></div>
+  </section>
 
-<p class="runtime-note">Index lives in memory only &mdash; reprocess after a server restart.</p>
+  <section class="panel" aria-labelledby="question-heading">
+    <div class="stage-head">
+      <div>
+        <span class="stage-tag">Stage 02 &middot; Retrieve + generate</span>
+        <h2 id="question-heading">Ask a question</h2>
+      </div>
+      <span id="context-status" class="stage-note{% if has_context %} is-ready{% endif %}">
+        {% if has_context %}Document ready{% else %}Upload a document first{% endif %}
+      </span>
+    </div>
+    <form hx-post="{% url 'web:ask_question' %}" hx-target="#answer-result" hx-swap="innerHTML" hx-indicator="#question-loading">
+      {% csrf_token %}
+      <label class="sr-only" for="question">Your question</label>
+      <div class="examples" aria-label="Example questions">
+        <button type="button" class="chip" data-question="Summarize this document in a few sentences.">Summarize it</button>
+        <button type="button" class="chip" data-question="What are the main topics covered?">Main topics</button>
+        <button type="button" class="chip" data-question="List the key facts or numbers mentioned.">Key facts</button>
+        <button type="button" class="chip" data-question="Who or what is this document about?">What is it about?</button>
+      </div>
+      <textarea id="question" name="question" rows="2" maxlength="2000" placeholder="What would you like to know?" required></textarea>
+      <div class="actions">
+        <button class="button" type="submit">Ask Gemini <span aria-hidden="true">&rarr;</span></button>
+        <span id="question-loading" class="htmx-indicator" role="status">Searching<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>
+      </div>
+    </form>
+    <div id="answer-result" aria-live="polite"></div>
+  </section>
+</div>
+
+<script>
+  document.querySelectorAll(".chip").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var field = document.getElementById("question");
+      field.value = chip.dataset.question;
+      field.focus();
+      field.classList.remove("flash");
+      void field.offsetWidth;
+      field.classList.add("flash");
+    });
+  });
+  var documentInput = document.getElementById("id_document");
+  if (documentInput) {
+    documentInput.addEventListener("change", function () {
+      documentInput.closest(".dropzone").classList.toggle("has-file", documentInput.files.length > 0);
+    });
+  }
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest(".copy-answer");
+    if (!button) return;
+    var text = document.querySelector(".answer-text");
+    if (!text || !navigator.clipboard) return;
+    navigator.clipboard.writeText(text.textContent).then(function () {
+      button.textContent = "Copied";
+      button.classList.add("is-copied");
+      setTimeout(function () { button.textContent = "Copy"; button.classList.remove("is-copied"); }, 1500);
+    });
+  });
+</script>
 {% endblock %}
