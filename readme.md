@@ -19,9 +19,11 @@ This project implements a small retrieval-augmented generation (RAG) application
 
 The user uploads a Markdown, text, or PDF document, which is split into overlapping chunks and embedded. Questions are embedded and matched against the document chunks by cosine distance. Gemini then generates an answer using only the retrieved context.
 
-The application uses Django with server-rendered HTML, CSS and HTMX — no frontend framework. The active document index is kept in process memory, which keeps the project compatible with a Vercel-only deployment without requiring an external database or storage service.
+The application uses Django with server-rendered HTML, CSS and HTMX — no frontend framework. Each browser gets its own document index, kept in process memory under a random session cookie (up to 20 at once, expiring after an hour without use), which keeps the project compatible with a Vercel-only deployment without requiring an external database or storage service.
 
 > Because Vercel functions can restart, the document may need to be uploaded and processed again before a new question.
+
+Uploads and questions are rate limited per IP and globally (see `RATE_LIMITS` in `config/settings.py`) to protect the paid Gemini API. The counters are process-local, so on serverless hosting they are a best-effort guard.
 
 Each answer is shown alongside a small radial diagram that plots the retrieved passages by their real cosine distance to the question — closer to the center means more relevant, and the ranking shown matches the numbered passages listed below it.
 
@@ -49,14 +51,15 @@ config/
 rag/
 ├── chunking.py       # Document chunking
 ├── client.py         # Gemini client
-├── config.py         # Model configuration
+├── config.py         # Model and session/concurrency configuration
 ├── embeddings.py     # Document and query embeddings
 ├── extraction.py     # Text extraction from .md/.txt/.pdf uploads
 ├── generation.py     # Context-grounded answer generation
-└── services.py       # In-memory RAG orchestration
+└── services.py       # Per-session in-memory index and RAG orchestration
 
 web/
 ├── forms.py          # Upload validation (extension, size, UTF-8)
+├── ratelimit.py      # Per-IP and global request limits (429 partial)
 ├── urls.py           # Application routes
 └── views.py          # Upload/question endpoints + retrieval-plot geometry
 
@@ -64,6 +67,9 @@ templates/web/
 ├── base.html          # Shell, hero, ambient retrieval plot
 ├── home.html          # Upload + question forms
 └── partials/          # HTMX swap targets (answer, upload result, error)
+
+static/js/
+└── htmx.min.js         # htmx 2.0.4, self-hosted
 
 static/css/
 ├── app.css             # Active theme (Signal)
@@ -119,7 +125,7 @@ Open `http://127.0.0.1:8000/` in your browser.
 3. Ask a question about the uploaded content.
 4. Receive an answer based only on the most relevant retrieved chunks.
 
-The upload accepts Markdown, txt or PDF files up to 2 MB. The active index is stored only in memory and is cleared when the application process restarts.
+The upload accepts Markdown, txt or PDF files up to 2 MB. The index is stored only in memory, per browser session, and is cleared when it expires or the application process restarts.
 
 ---
 
