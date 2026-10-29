@@ -62,3 +62,12 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Per-endpoint request limits as (scope, max requests, window in seconds). The
+# "client" scope is per IP, "global" is shared by everyone. Counters are
+# process-local, so on serverless hosting they are a best-effort cost guard.
+RATE_LIMITS = {
+    "upload": [("client", 5, 600), ("global", 100, 86400)],
+    "ask": [("client", 20, 600), ("global", 1000, 86400)],
+    "clear": [("client", 30, 600)],
+}
