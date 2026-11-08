@@ -1,6 +1,6 @@
-<div class="notice success" role="status">
-  <span class="notice-tag">Cleared</span>
-  <span>The index was emptied. Upload a document to ask questions again.</span>
-</div>
-<span id="context-status" hx-swap-oob="true" class="stage-note">Upload a document first</span>
-<div id="answer-result" hx-swap-oob="true" aria-live="polite"></div>
+<div hidden data-upload-cleared data-toast="success" data-toast-text="Document removed"></div>
+{% include "web/partials/doc_stats.html" with oob=True %}
+{% include "web/partials/cloud_data.html" with oob=True cloud=None %}
+{% include "web/partials/status_pill.html" with oob=True ready=False %}
+<div id="chunk-list" hx-swap-oob="innerHTML"><div class="empty"><p class="empty-title">Nothing here yet</p><p class="muted">Process a document to browse its passages.</p></div></div>
+<span id="tab-count" hx-swap-oob="true" class="tab-count"></span>

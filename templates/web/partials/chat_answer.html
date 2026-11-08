@@ -1,35 +1,27 @@
-<article class="answer">
+<article class="answer" data-retrieved="{{ retrieved }}" data-similarities="{{ similarities }}"{% if query_json %} data-query="{{ query_json }}"{% endif %}>
   <div class="answer-head">
-    <h3>Answer</h3>
-    <button type="button" class="copy-answer">Copy</button>
+    <span class="eyebrow">Answer</span>
+    <span class="answer-time" title="Embed {{ timings.embed_ms }} ms, retrieve {{ timings.retrieve_ms }} ms, generate {{ timings.generate_ms }} ms">{{ timings.embed_ms|add:timings.retrieve_ms|add:timings.generate_ms }} ms</span>
+    <button type="button" class="link-button copy-answer">Copy</button>
   </div>
   <p class="answer-text">{{ answer }}</p>
-  <details class="answer-sources">
-    <summary>Retrieved passages ({{ sources|length }})</summary>
-    <div class="answer-top">
-      <div class="answer-list">
-        {% for source in sources %}
-        <div class="source">
-          <span class="source-rank">{{ forloop.counter }}</span>
-          <div class="source-body">
-            <small>Distance {{ source.distance|floatformat:4 }}</small>
-            <p>{{ source.text }}</p>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% if plot_points %}
-      <svg class="retrieval-plot" viewBox="0 0 {{ plot_size }} {{ plot_size }}" role="img" aria-label="Retrieved passages plotted by similarity distance; closer to the center means more relevant">
-        <circle class="plot-query" cx="{{ plot_center }}" cy="{{ plot_center }}" r="5"></circle>
-        {% for point in plot_points %}<line class="plot-link" x1="{{ plot_center }}" y1="{{ plot_center }}" x2="{{ point.x }}" y2="{{ point.y }}"></line>{% endfor %}
-        {% for point in plot_points %}
-        <circle class="plot-node" cx="{{ point.x }}" cy="{{ point.y }}" r="5"></circle>
-        <text class="plot-label" x="{{ point.x }}" y="{{ point.label_y }}">{{ point.rank }}</text>
-        {% endfor %}
-        <line class="plot-sweep" x1="{{ plot_center }}" y1="{{ plot_center }}" x2="{{ plot_center }}" y2="{{ plot_sweep_y }}" style="transform-origin: {{ plot_center }}px {{ plot_center }}px"></line>
-        <circle class="plot-sweep-tip" cx="{{ plot_center }}" cy="{{ plot_sweep_y }}" r="3" style="transform-origin: {{ plot_center }}px {{ plot_center }}px"></circle>
-      </svg>
-      {% endif %}
-    </div>
-  </details>
 </article>
+
+<div id="retrieval-result" hx-swap-oob="true" class="scroll" tabindex="0">
+  <ol class="sources">
+    {% for source in sources %}
+    <li class="source" style="--d: {{ forloop.counter0 }}">
+      <div class="source-head">
+        <span class="source-rank">{{ forloop.counter }}</span>
+        <button type="button" class="link-button" data-passage="{{ source.number }}">Passage #{{ source.number }}</button>
+        <span class="source-score">{{ source.percent }}%</span>
+      </div>
+      <div class="bar" role="img" aria-label="Similarity {{ source.percent }} percent"><span class="bar-fill" style="--w: {{ source.percent }}%"></span></div>
+      <small>Distance {{ source.distance|floatformat:4 }}</small>
+      <p class="source-text">{% for segment, matched in source.segments %}{% if matched %}<mark>{{ segment }}</mark>{% else %}{{ segment }}{% endif %}{% endfor %}</p>
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+
+<div id="last-timings" hx-swap-oob="true" hidden data-embed-ms="{{ timings.embed_ms }}" data-retrieve-ms="{{ timings.retrieve_ms }}" data-generate-ms="{{ timings.generate_ms }}"></div>

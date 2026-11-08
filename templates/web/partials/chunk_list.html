@@ -1,0 +1,12 @@
+<ol class="chunks">
+  {% for chunk in chunks %}
+  <li class="chunk-row" id="chunk-{{ chunk.number }}" data-number="{{ chunk.number }}">
+    <div class="chunk-row-head">
+      <span class="chunk-num">#{{ chunk.number }}</span>
+      <span class="chunk-size">{{ chunk.size }} chars</span>
+      <span class="chunk-rank" hidden></span>
+    </div>
+    <p class="chunk-text">{{ chunk.text }}</p>
+  </li>
+  {% endfor %}
+</ol>

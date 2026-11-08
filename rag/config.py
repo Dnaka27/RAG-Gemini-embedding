@@ -6,3 +6,4 @@ MAX_CHUNKS = 150  # one paid embedding call per chunk
 EMBED_CONCURRENCY = 4  # parallel embedding calls per upload
 MAX_SESSIONS = 20  # indexes kept in memory at once; the least recently used is dropped
 SESSION_TTL_SECONDS = 3600  # an index expires after this long without use
+TOP_K = 5  # passages retrieved per question

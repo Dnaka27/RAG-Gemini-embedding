@@ -1,0 +1,33 @@
+<div class="doc-summary" id="doc-stats"{% if oob %} hx-swap-oob="true"{% endif %}{% if stats %} data-has-doc data-extract-ms="{{ stats.extract_ms }}" data-chunk-ms="{{ stats.chunk_ms }}" data-embed-ms="{{ stats.embed_ms }}" data-chunks="{{ stats.chunks }}" data-expires="{{ stats.expires_in }}"{% endif %}>
+  {% if stats %}
+  <div class="doc-row">
+    <svg class="doc-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+    <div class="doc-text">
+      <p class="doc-name" title="{{ stats.filename }}">{{ stats.filename }}</p>
+      <p class="doc-kind">{{ stats.bytes|filesizeformat }} &middot; {{ stats.chunks }} passage{{ stats.chunks|pluralize }}</p>
+    </div>
+    <button type="button" class="button button-sm button-ghost" id="replace-button">Replace</button>
+    <button type="button" class="icon-button" aria-label="Remove document" title="Remove document" hx-post="{% url 'web:clear_document' %}" hx-target="#upload-result" hx-swap="innerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+      <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5a1 1 0 0 0 1 .9h3.8a1 1 0 0 0 1-.9l.6-8.5"/></svg>
+    </button>
+  </div>
+  <details class="collapse collapse-inline">
+    <summary class="collapse-summary"><span>Details</span><span class="chevron" aria-hidden="true"></span></summary>
+    <div class="collapse-body doc-details">
+      <dl class="kv">
+        <div><dt>Characters</dt><dd>{{ stats.chars|floatformat:"0g" }}</dd></div>
+        <div><dt>Average passage</dt><dd>{{ stats.avg_size }}</dd></div>
+        <div><dt>Shortest / longest</dt><dd>{{ stats.min_size }} / {{ stats.max_chunk }}</dd></div>
+        <div><dt>Length / overlap</dt><dd>{{ stats.max_size }} / {{ stats.overlap }}</dd></div>
+        <div><dt>Processing</dt><dd>{{ stats.embed_ms|add:stats.chunk_ms|add:stats.extract_ms }} ms</dd></div>
+      </dl>
+      <div>
+        <div class="histogram" role="img" aria-label="Passage length distribution">
+          {% for bar in stats.histogram %}<span class="histogram-bar" style="--h: {{ bar.height }}%; --d: {{ forloop.counter0 }}" title="{{ bar.count }} passage{{ bar.count|pluralize }}"></span>{% endfor %}
+        </div>
+        <p class="histogram-caption">Passage length distribution</p>
+      </div>
+    </div>
+  </details>
+  {% endif %}
+</div>

@@ -25,18 +25,19 @@ The application uses Django with server-rendered HTML, CSS and HTMX — no front
 
 Uploads and questions are rate limited per IP and globally (see `RATE_LIMITS` in `config/settings.py`) to protect the paid Gemini API. The counters are process-local, so on serverless hosting they are a best-effort guard.
 
-Each answer is shown alongside a small radial diagram that plots the retrieved passages by their real cosine distance to the question — closer to the center means more relevant, and the ranking shown matches the numbered passages listed below it.
+Each answer is shown next to a 3D cloud of the document: every passage is a point placed by a PCA projection of its embedding (computed in pure Python on upload), the question is projected into the same space, and lines link it to the passages actually retrieved by cosine distance in the full 768-dimension space. The cloud is drawn on a plain `<canvas>` with a hand-written perspective projection, without a 3D library; drag to rotate, click a point to open that passage.
 
 ---
 
 ## Interface
 
-The active look is **Signal**, a dark amber-on-near-black theme (`static/css/app.css`, JetBrains Mono + Space Grotesk) built around that same retrieval diagram: a rotating radar sweep inside the plot, a blinking terminal cursor on the headline, and subtle fade-in transitions on HTMX swaps. All motion is CSS-only (`transform`/`opacity`), contained to small elements, and disabled under `prefers-reduced-motion`.
+A single screen (`static/css/app.css`, Nunito + DM Mono, dark with a light theme toggle) that always fits the viewport: the page never scrolls, only the panels inside it do. There is no page navigation; extra detail opens in place:
 
-Two alternate themes ship unused in `static/css/` and can be swapped in by copying their contents into `app.css` and updating the Google Fonts link in `templates/web/base.html`:
+- **1 · Your document** — drag-and-drop upload. Passage length and overlap live in a collapsed *Advanced settings* section with a plain-language explanation and a live estimate. Once processed, the card shrinks to a file summary (Replace, Remove) with a collapsed *Details* section (stats and length histogram).
+- **2 · Ask a question** — suggestion chips, question box (`/` to focus, `Ctrl+Enter` to send), the answer with its response time, and a collapsed *Recent questions* history.
+- **Sources / All passages** — two tabs on the right: the 3D retrieval cloud with the ranked sources (similarity bars, highlighted question terms), or every passage with a text filter, the ones used by the last question marked.
 
-- `theme-marginalia.css` — warm editorial serif (Fraunces + Public Sans + Space Mono), indigo ink, drop-cap answers.
-- `theme-blueprint.css` — pale technical schematic (Barlow Condensed + Archivo + Roboto Mono), sharp corners, dashed dimension lines.
+*How it works*, in the top bar, opens a dialog with the upload and query pipeline, live timings from the session and the shortcuts. Motion is CSS `transform`/`opacity` plus the canvas cloud, all reduced under `prefers-reduced-motion`.
 
 ---
 
@@ -55,26 +56,27 @@ rag/
 ├── embeddings.py     # Document and query embeddings
 ├── extraction.py     # Text extraction from .md/.txt/.pdf uploads
 ├── generation.py     # Context-grounded answer generation
+├── projection.py     # 3-axis PCA of the embeddings for the retrieval cloud
 └── services.py       # Per-session in-memory index and RAG orchestration
 
 web/
 ├── forms.py          # Upload validation (extension, size, UTF-8)
 ├── ratelimit.py      # Per-IP and global request limits (429 partial)
 ├── urls.py           # Application routes
-└── views.py          # Upload/question endpoints + retrieval-plot geometry
+└── views.py          # Upload/question/chunk endpoints
 
 templates/web/
-├── base.html          # Shell, hero, ambient retrieval plot
-├── home.html          # Upload + question forms
-└── partials/          # HTMX swap targets (answer, upload result, error)
+├── base.html          # App shell: top bar, workspace, toasts
+├── home.html          # Document and question cards, sources/passages tabs, How it works dialog
+└── partials/          # HTMX swap targets (answer, upload result, chunk list, stats, error)
 
 static/js/
+├── app.js              # Tabs, shortcuts, dropzone, replace flow, toasts, history, passage list
+├── cloud.js            # 3D retrieval cloud on canvas (no dependencies)
 └── htmx.min.js         # htmx 2.0.4, self-hosted
 
 static/css/
-├── app.css             # Active theme (Signal)
-├── theme-marginalia.css  # Alternate theme, not loaded by default
-└── theme-blueprint.css   # Alternate theme, not loaded by default
+└── app.css             # Console theme (dark, with light override)
 
 manage.py             # Django command-line entrypoint
 requirements.txt      # Python dependencies
