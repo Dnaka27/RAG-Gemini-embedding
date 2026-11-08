@@ -70,4 +70,5 @@ RATE_LIMITS = {
     "upload": [("client", 5, 600), ("global", 100, 86400)],
     "ask": [("client", 20, 600), ("global", 1000, 86400)],
     "clear": [("client", 30, 600)],
+    "chunks": [("client", 60, 600)],
 }

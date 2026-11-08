@@ -1,24 +1,6 @@
-{% if success %}
-<div class="notice success" role="status">
-  <span class="notice-tag">Processed</span>
-  <span>{{ chunk_count }} chunk{{ chunk_count|pluralize }} ready for questions.</span>
-</div>
-{% if chunk_previews %}
-<details class="chunk-preview">
-  <summary>Chunk preview ({{ chunk_count }})</summary>
-  {% for chunk in chunk_previews %}
-  <div class="chunk">
-    <span class="chunk-meta">#{{ chunk.number }} &middot; {{ chunk.size }} chars</span>
-    <p>{{ chunk.text }}</p>
-  </div>
-  {% endfor %}
-  {% if chunks_hidden > 0 %}<p class="chunk-more">+ {{ chunks_hidden }} more</p>{% endif %}
-</details>
-{% endif %}
-<span id="context-status" hx-swap-oob="true" class="stage-note is-ready">Document ready</span>
-{% elif form.errors %}
-<div class="notice error" role="alert">
-  <span class="notice-tag">Error</span>
-  <span>{{ form.errors }}</span>
-</div>
-{% endif %}
+<div hidden data-upload-ok data-toast="success" data-toast-text="Document ready: {{ chunk_count }} passage{{ chunk_count|pluralize }}. Ask a question below."></div>
+{% include "web/partials/doc_stats.html" with oob=True %}
+{% include "web/partials/cloud_data.html" with oob=True %}
+{% include "web/partials/status_pill.html" with oob=True ready=True %}
+<div id="chunk-list" hx-swap-oob="innerHTML"><p class="empty" data-stale>Loading passages</p></div>
+<span id="tab-count" hx-swap-oob="true" class="tab-count">{{ chunk_count }}</span>
