@@ -6,7 +6,9 @@ import time
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_GET, require_POST
+from markdown_it import MarkdownIt
 
 from .forms import DocumentUploadForm
 from .ratelimit import rate_limited
@@ -16,6 +18,9 @@ from rag.extraction import extract_text
 
 SESSION_COOKIE = "rag_sid"
 _SESSION_ID = re.compile(r"[A-Za-z0-9_-]{16,64}")
+
+# Raw HTML in the model output is escaped (html=False); unsafe link schemes are dropped by markdown-it.
+_MARKDOWN = MarkdownIt("commonmark", {"html": False}).enable(["table", "strikethrough"])
 
 _TERM = re.compile(r"\w{4,}")
 _STOPWORDS = {"what", "which", "that", "this", "with", "from", "have", "does", "about", "there", "their", "were", "when", "where", "into", "than", "then", "them", "your", "will", "would", "could", "should"}
@@ -103,6 +108,7 @@ def ask_question(request: HttpRequest) -> HttpResponse:
         return _error(request, _safe_error(exc, "The question could not be answered. Try again."), 502)
     context = {
         **result,
+        "answer_html": mark_safe(_MARKDOWN.render(result["answer"])),
         "query_json": json.dumps(result["query_point"]) if result.get("query_point") else "",
         "similarities": ",".join(f"{item['similarity']:.4f}" for item in result["sources"]),
         "retrieved": ",".join(str(item["number"]) for item in result["sources"]),

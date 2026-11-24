@@ -375,7 +375,7 @@
   function copyAnswer(button) {
     var text = $(".answer-text");
     if (!text || !navigator.clipboard) return;
-    navigator.clipboard.writeText(text.textContent).then(function () {
+    navigator.clipboard.writeText(text.dataset.markdown || text.textContent).then(function () {
       button.textContent = "Copied";
       button.classList.add("is-copied");
       setTimeout(function () { button.textContent = "Copy"; button.classList.remove("is-copied"); }, 1500);

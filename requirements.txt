@@ -2,3 +2,4 @@ google-genai==1.38.0
 Django>=4.2,<5.0
 python-dotenv==1.1.1
 pypdf==6.14.2
+markdown-it-py==4.3.0

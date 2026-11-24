@@ -4,7 +4,7 @@
     <span class="answer-time" title="Embed {{ timings.embed_ms }} ms, retrieve {{ timings.retrieve_ms }} ms, generate {{ timings.generate_ms }} ms">{{ timings.embed_ms|add:timings.retrieve_ms|add:timings.generate_ms }} ms</span>
     <button type="button" class="link-button copy-answer">Copy</button>
   </div>
-  <p class="answer-text">{{ answer }}</p>
+  <div class="answer-text" data-markdown="{{ answer }}">{{ answer_html }}</div>
 </article>
 
 <div id="retrieval-result" hx-swap-oob="true" class="scroll" tabindex="0">
