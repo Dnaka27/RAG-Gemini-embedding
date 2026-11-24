@@ -581,7 +581,25 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 
 .answer { display: flex; flex-direction: column; gap: 8px; animation: rise 0.4s var(--ease-out) both; }
 .answer-head { display: flex; align-items: center; gap: 10px; }
-.answer-text { font-size: var(--fs-lg); line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.answer-text { font-size: var(--fs-lg); line-height: 1.65; overflow-wrap: anywhere; }
+.answer-text > * { margin: 0; }
+.answer-text > * + * { margin-top: 0.7em; }
+.answer-text :is(h1, h2, h3, h4, h5, h6) { font-size: 1.05em; font-weight: 700; line-height: 1.35; }
+.answer-text ul { list-style: disc; padding-left: 1.4em; }
+.answer-text ol { list-style: decimal; padding-left: 1.4em; }
+.answer-text li::marker { color: var(--muted); }
+.answer-text li + li { margin-top: 0.25em; }
+.answer-text li > :is(ul, ol) { margin-top: 0.25em; }
+.answer-text strong { font-weight: 700; }
+.answer-text a { color: var(--accent); }
+.answer-text code { font-family: var(--font-mono); font-size: 0.88em; padding: 0.1em 0.35em; border-radius: 5px; background: var(--panel-2); border: 1px solid var(--line); }
+.answer-text pre { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--panel-2); border: 1px solid var(--line); overflow-x: auto; }
+.answer-text pre code { padding: 0; border: 0; background: none; }
+.answer-text blockquote { padding-left: 12px; border-left: 3px solid var(--line-2); color: var(--muted); }
+.answer-text hr { border: 0; border-top: 1px solid var(--line); }
+.answer-text table { border-collapse: collapse; font-size: 0.92em; display: block; overflow-x: auto; }
+.answer-text :is(th, td) { padding: 4px 10px; border: 1px solid var(--line); text-align: left; }
+.answer-text th { background: var(--panel-2); font-weight: 700; }
 .copy-answer.is-copied { color: var(--ink); text-decoration: none; }
 
 #retrieval-result { display: flex; flex-direction: column; gap: 12px; }
